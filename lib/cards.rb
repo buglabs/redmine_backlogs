@@ -241,7 +241,7 @@ module Cards
                         # Task and Story trail
                         @y = @pdf.bounds.height
                         pos = parent_story.position ? parent_story.position : l(:label_not_prioritized)
-                        trail = (issue.self_and_ancestors.reverse.collect{|i| "#{i.tracker.name} ##{i.id}"}.join(" : ")) + " (#{pos})"
+                        trail = issue.self_and_ancestors.reverse.collect{|i| "#{i.tracker.name} ##{i.id}"}.join(" : ") 
                         @pdf.font_size(6) do
                             text_box(trail, {
                                     :width => pdf.bounds.width - scoresize,
