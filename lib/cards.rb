@@ -225,6 +225,7 @@ module Cards
     
                         scoresize = 0
 
+                        # Estimated hours, or points if they exist
                         @y = @pdf.bounds.bottom + 12
                         @pdf.font_size(12) do
                             score = (type == :task ? issue.estimated_hours.to_i : issue.story_points.to_i)
@@ -237,6 +238,7 @@ module Cards
                                 } )
                         end
     
+                        # Task and Story trail
                         @y = @pdf.bounds.height
                         pos = parent_story.position ? parent_story.position : l(:label_not_prioritized)
                         trail = (issue.self_and_ancestors.reverse.collect{|i| "#{i.tracker.name} ##{i.id}"}.join(" : ")) + " (#{pos})"
@@ -244,41 +246,38 @@ module Cards
                             text_box(trail, {
                                     :width => pdf.bounds.width - scoresize,
                                     :height => @pdf.font.height,
+                                    :align => :center,
                                     :style => :italic
                                 })
                         end
     
-    
-                        @pdf.font_size(6) do
-                            parent = (type == :task ? parent_story.subject : (issue.fixed_version ? issue.fixed_version.name : I18n.t(:backlogs_product_backlog)))
-                            text_box parent, {
-                                    :width => pdf.bounds.width - scoresize,
-                                    :height => @pdf.font.height
-                            }
-                        end
-    
+                        # Task or User Story 
                         text_box issue.subject, {
                                 :width => pdf.bounds.width,
-                                :height => @pdf.font.height * 2
+                                :height => @pdf.bounds.height - @pdf.font.height,
+                                :align => :center,
+                                :valign => :center
                             }
-                        @pdf.line [0, @y], [pdf.bounds.width, @y]
-                        @y -= 2
     
-                        @pdf.font_size(8) do
-                            text_box issue.description || issue.subject , {
-                                    :width => pdf.bounds.width,
-                                    :height => @y - 8
-                                }
-                        end
-    
-                        @pdf.font_size(6) do
-                            category = issue.category ? "#{l(:field_category)}: #{issue.category.name}" : ''
-                            catsize = @pdf.width_of(" #{category} ")
-                            text_box(category, {
-                                    :width => catsize,
-                                    :height => @pdf.font.height
-                                }, pdf.bounds.width - catsize)
-                        end
+                        # User Name
+			begin
+			  user = User.find(issue.assigned_to_id)
+			rescue
+			  user = ""
+			end
+			if user===""
+			  initials=""
+			else
+			  initials = user.firstname.first + user.lastname.first
+			end
+			initials_width = @pdf.width_of("_#{initials}_")
+                        @y = @pdf.bounds.height
+                        @pdf.font_size(12) do
+                            text_box( initials, {
+			        :width => initials_width,
+				:height => @pdf.font.height
+                            }, @pdf.bounds.width - initials_width)
+			end
                     end
                 end
             end
