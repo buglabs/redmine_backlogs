@@ -224,17 +224,17 @@ module Cards
                                         :height => @height - (2 * @inner_margin) do
     
                         scoresize = 0
-                        @y = @pdf.bounds.height
+
+                        @y = @pdf.bounds.bottom + 12
                         @pdf.font_size(12) do
-                            score = (type == :task ? issue.estimated_hours : issue.story_points)
-                            score ||= '?'
-                            score = "#{score} #{type == :task ? l(:label_hours) : l(:label_points)}"
+                            score = (type == :task ? issue.estimated_hours.to_i : issue.story_points.to_i)
+			    score = ( score == 0 ? ( type == :task ? '??' : '' ) : "#{score}" )
                             scoresize = @pdf.width_of(" #{score} ")
     
                             text_box(score, {
                                     :width => scoresize,
                                     :height => @pdf.font.height
-                                }, pdf.bounds.width - scoresize)
+                                } )
                         end
     
                         @y = @pdf.bounds.height
